@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing
+        http://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="admin_login" path="/admin-GC2NeDwu26y6pred" controller="Dades\FosUserExtensionBundle\Controller\Admin\Security\Login"/>
+    <route id="admin_login_check" path="/admin-login-check" controller="Dades\FosUserExtensionBundle\Controller\Admin\Security\LoginCheck"/>
+    <route id="admin_index" path="/admin" controller="Dades\FosUserExtensionBundle\Decorator\Dades\EasyAdminExtensionBundle\Controller\Index::index"/>
+</routes>

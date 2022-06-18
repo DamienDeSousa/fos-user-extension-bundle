@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="dades_fos_user_extension.security_user_roles" class="Dades\FosUserExtensionBundle\Security\UserRoles">
+            <argument>%security.role_hierarchy.roles%</argument>
+        </service>
+        <service id="Dades\FosUserExtensionBundle\Security\UserRolesInterface" alias="dades_fos_user_extension.security_user_roles"/>
+
+        <!--    GUARDS    -->
+        <service id="dades_fos_user_extension.security_admin_login_authentificator" class="Dades\FosUserExtensionBundle\Security\Admin\LoginFormAuthenticator">
+            <argument type="service" id="doctrine.orm.entity_manager"/>
+            <argument type="service" id="router"/>
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument type="service" id="security.password_encoder"/>
+            <argument type="service" id="dades_fos_user_extension.security_admin_auth_securizer"/>
+        </service>
+        <service id="Dades\FosUserExtensionBundle\Security\Admin\LoginFormAuthenticator" alias="dades_fos_user_extension.security_admin_login_authentificator"/>
+
+
+
+        <!--    AUTHENTIFICATION SERVICES    -->
+        <service id="dades_fos_user_extension.security_admin_auth_securizer" class="Dades\FosUserExtensionBundle\Security\Admin\AuthSecurizer">
+            <argument type="service" id="security.access.decision_manager"/>
+        </service>
+        <service id="Dades\FosUserExtensionBundle\Security\Admin\AuthSecurizer" alias="dades_fos_user_extension.security_admin_auth_securizer"/>
+
+        <service id="dades_fos_user_extension.security_admin_auth_error" class="Dades\FosUserExtensionBundle\Security\Admin\AuthError"/>
+
+        <service id="dades_fos_user_extension.security_admin_last_username" class="Dades\FosUserExtensionBundle\Security\Admin\LastUsername"/>
+
+
+
+        <!--    CONTROLLERS    -->
+        <service id="Dades\FosUserExtensionBundle\Controller\Admin\Security\Login" public="true">
+            <argument type="service" id="gregwar_captcha.generator"/>
+            <argument type="service" id="security.csrf.token_manager"/>
+            <argument type="service" id="dades_fos_user_extension.security_admin_auth_error"/>
+            <argument type="service" id="dades_fos_user_extension.security_admin_last_username"/>
+            <argument type="service" id="dades_gregwar_captcha_extension.security_admin_login_captcha"/>
+            <argument>%gregwar_captcha.config%</argument>
+            <call method="setContainer">
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
+        </service>
+
+        <service id="Dades\FosUserExtensionBundle\Controller\Admin\Security\LoginCheck" public="true">
+            <call method="setContainer">
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
+        </service>
+
+
+
+        <!--    DECORATORS    -->
+        <service id="Dades\FosUserExtensionBundle\Decorator\Fos\UserBundle\Command\DemoteUserCommand" decorates="fos_user.command.demote_user">
+            <argument type="service" id="fos_user.util.user_manipulator"/>
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="dades_fos_user_extension.security_user_roles"/>
+        </service>
+
+        <service id="Dades\FosUserExtensionBundle\Decorator\Fos\UserBundle\Command\PromoteUserCommand" decorates="fos_user.command.promote_user">
+            <argument type="service" id="fos_user.util.user_manipulator"/>
+            <argument type="service" id=".inner"/>
+            <argument type="service" id="dades_fos_user_extension.security_user_roles"/>
+        </service>
+
+        <service id="Dades\FosUserExtensionBundle\Decorator\Dades\EasyAdminExtensionBundle\Controller\Index" decorates="Dades\EasyAdminExtensionBundle\Controller\Admin\Index" public="true">
+            <argument type="service" id=".inner"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+            <tag name="ea.dashboard_controller"/>
+            <tag name="container.service_subscriber"/>
+        </service>
+
+        <!--    the suffix 'admin' (in the decorated service )refers to the admin section in security.yaml    -->
+        <!--    for each new firewall on login page, there will be a new service named    -->
+        <!--    security.authentication.form_entry_point.<the name of your firewall>    -->
+        <service id="Dades\FosUserExtensionBundle\Decorator\Security\EntryPoint\FormAuthenticationEntryPoint404" decorates="security.authentication.form_entry_point.admin">
+            <argument type="service" id=".inner"/>
+        </service>
+
+
+
+        <!--    VOTERS    -->
+        <service id="dades_fos_user_extension.security_admin_voter_home_page" class="Dades\FosUserExtensionBundle\Security\Admin\Voter\HomePageVoter">
+            <argument type="service" id="security.helper"/>
+            <tag name="security.voter"/>
+        </service>
+    </services>
+</container>
